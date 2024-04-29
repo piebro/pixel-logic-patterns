@@ -14,7 +14,7 @@ The project is inspired from https://github.com/gingerbeardman/mandala, which do
 
 ## Contributing
 
-Contributions to this project are welcome. Feel free to report bugs, suggest ideas, or create merge requests.
+Contributions to this project are welcome. Feel free to report bugs, suggest ideas, or create merge requests. If you have cool example you can add them to the function lists [here](https://github.com/piebro/pixel-logic-patterns/blob/main/index.html#L68).
 
 ## Developing
 
