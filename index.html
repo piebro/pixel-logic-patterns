@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pixel Logic Pattern Playground</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script defer data-domain="piebro.github.io/pixel-logic-patterns" src="https://plausible.io/js/script.js"></script>
+<style>
+canvas {
+    width:auto;
+    height:auto;
+    max-width: 92vw;
+    max-height: 86vh;
+    margin: auto;
+    display: block;
+    padding-top: 10px;
+}
+#control-container {
+    text-align: center;
+}
+.btn {
+    background-color: #04AA6D;
+    color: white;
+    padding: 8px 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    outline: none;
+}
+.btn:hover {
+    background-color: #3e8e41;
+}
+.slider {
+    margin-bottom: -5px;
+}
+</style>
+</head>
+<body>
+<div id="control-container">
+    <h1>Pixel Logic Pattern Playground</h1>
+    <input type="text" id="functionInput" placeholder="Enter function e.g., (x ^ y) % 5">
+    <input type="range" id="slider" min="0" max="100" value="5" step="1" class="slider">
+    <label for="slider" id="sliderValue">v: 5</label>
+    <button class="btn" id="playPauseBtn" title="Play or pause animation (space-key)">Play</button>
+    <button class="btn" id="randomFuncBtn" title="Load a random function">Random Function</button>
+    <button class="btn" id="downloadBtn" title="Download Image (s-key)">Download</button>
+    <button class="btn" onclick="location.href='https://github.com/piebro/pixel-logic-patterns';" title="About">About</button>
+</div>
+<canvas id="playdateScreen" width="1600" height="960"></canvas>
+<script>
+const canvas = document.getElementById('playdateScreen');
+const ctx = canvas.getContext('2d');
+const W = canvas.width;
+const H = canvas.height;
+const functionInput = document.getElementById('functionInput');
+const slider = document.getElementById('slider');
+const sliderValueLabel = document.getElementById('sliderValue');
+const playPauseBtn = document.getElementById('playPauseBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const randomFuncBtn = document.getElementById('randomFuncBtn');
+
+const pixelSize = 4;
+const animationSpeedInMs = 200;
+let v = parseInt(slider.value);
+let animationId = null;
+let lastFunctionIndex = 0
+
+const functionList = [
+    "(x ^ y) % v",
+    "(x | y) % v",
+    "(x * y) & v",
+    "(x * y) % v",
+    "((x ^ y) & (v | y)) % 255",
+    "(x * y + x + y) % v",
+    "~((x+4*v) | (y-4*v)) % 255",
+    "(x & v) * (y & v) % 101",
+    "((x >> v % 8) ^ (y >> v % 8)) % 11"
+];
+functionInput.value = functionList[0];
+
+function drawPixelsWithCustomFunction(func) {
+    try {
+        const f = new Function('x', 'y', 'v', `return ${func};`);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = '#FFF'
+        for (let x = 0; x < W; x += pixelSize) {
+            for (let y = 0; y < H; y += pixelSize) {
+                const p = f(x / pixelSize, y / pixelSize, v);
+                if (p === 0){
+                    ctx.fillRect(x, y, pixelSize, pixelSize); 
+                }
+            }
+        }
+    } catch (error) {
+        console.error("Error in function execution:", error);
+    }
+}
+
+function animate() {
+    v = (v + 1) % 101; // Increment v and wrap it around at 100
+    if (v === 0) v = 1; // Avoid the 0 case for modulo operations in your function
+    slider.value = v;
+    sliderValueLabel.textContent = "v: " + v;
+    drawPixelsWithCustomFunction(functionInput.value);
+
+    // Update to use setTimeout for a slower animation
+    animationId = setTimeout(animate, animationSpeedInMs); // Delay in milliseconds
+}
+
+function toggleAnimation() {
+    if (animationId) {
+        // Pause the animation
+        clearTimeout(animationId);  // Use clearTimeout here
+        animationId = null;
+        playPauseBtn.textContent = 'Play';
+    } else {
+        // Start the animation
+        playPauseBtn.textContent = 'Pause';
+        animate();
+    }
+}
+
+function downloadImage() {
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.download = 'pixel-logic-pattern.png';
+    link.href = dataUrl;
+    link.click();
+}
+
+function newRandomFunction(){
+    let randomIndex = Math.floor(Math.random() * (functionList.length-1));
+    // make sure randomIndex is not the previous index
+    if (randomIndex == lastFunctionIndex){
+        randomIndex = functionList.length-1
+    }
+    lastFunctionIndex = randomIndex
+    
+    const selectedFunction = functionList[randomIndex];
+    functionInput.value = selectedFunction;
+    drawPixelsWithCustomFunction(selectedFunction);
+}
+
+playPauseBtn.addEventListener('click', toggleAnimation);
+functionInput.addEventListener('input', () => {drawPixelsWithCustomFunction(functionInput.value);});
+slider.addEventListener('input', () => {
+    v = parseInt(slider.value);
+    sliderValueLabel.textContent = "v: " + v;
+    drawPixelsWithCustomFunction(functionInput.value);
+});
+randomFuncBtn.addEventListener('click', newRandomFunction);
+downloadBtn.addEventListener('click', downloadImage);
+
+document.addEventListener('keydown', function(event) {
+    if (event.code === "Space") {
+        event.preventDefault();
+        toggleAnimation();
+    } else if (event.code === "KeyS") {
+        event.preventDefault();
+        downloadImage();
+    }
+});
+
+
+drawPixelsWithCustomFunction(functionInput.value);
+
+</script>
+    
+</body>
+</html>
