@@ -48,22 +48,22 @@ canvas {
 </div>
 <canvas id="playdateScreen" width="1600" height="960"></canvas>
 <script>
-const canvas = document.getElementById('playdateScreen');
-const ctx = canvas.getContext('2d');
+const canvas = document.getElementById("playdateScreen");
+const ctx = canvas.getContext("2d");
 const W = canvas.width;
 const H = canvas.height;
-const functionInput = document.getElementById('functionInput');
-const slider = document.getElementById('slider');
-const sliderValueLabel = document.getElementById('sliderValue');
-const playPauseBtn = document.getElementById('playPauseBtn');
-const downloadBtn = document.getElementById('downloadBtn');
-const randomFuncBtn = document.getElementById('randomFuncBtn');
+const functionInput = document.getElementById("functionInput");
+const slider = document.getElementById("slider");
+const sliderValueLabel = document.getElementById("sliderValue");
+const playPauseBtn = document.getElementById("playPauseBtn");
+const downloadBtn = document.getElementById("downloadBtn");
+const randomFuncBtn = document.getElementById("randomFuncBtn");
 
 const pixelSize = 4;
 const animationSpeedInMs = 200;
 let v = parseInt(slider.value);
 let animationId = null;
-let lastFunctionIndex = 0
+let lastFunctionIndex = 0;
 
 const functionList = [
     "(x ^ y) % v",
@@ -74,21 +74,21 @@ const functionList = [
     "(x * y + x + y) % v",
     "~((x+4*v) | (y-4*v)) % 255",
     "(x & v) * (y & v) % 101",
-    "((x >> v % 8) ^ (y >> v % 8)) % 11"
+    "((x >> v % 8) ^ (y >> v % 8)) % 11",
 ];
 functionInput.value = functionList[0];
 
 function drawPixelsWithCustomFunction(func) {
     try {
-        const f = new Function('x', 'y', 'v', `return ${func};`);
-        ctx.fillStyle = '#000';
+        const f = new Function("x", "y", "v", `return ${func};`);
+        ctx.fillStyle = "#000";
         ctx.fillRect(0, 0, W, H);
-        ctx.fillStyle = '#FFF'
+        ctx.fillStyle = "#FFF";
         for (let x = 0; x < W; x += pixelSize) {
             for (let y = 0; y < H; y += pixelSize) {
                 const p = f(x / pixelSize, y / pixelSize, v);
-                if (p === 0){
-                    ctx.fillRect(x, y, pixelSize, pixelSize); 
+                if (p === 0) {
+                    ctx.fillRect(x, y, pixelSize, pixelSize);
                 }
             }
         }
@@ -99,60 +99,59 @@ function drawPixelsWithCustomFunction(func) {
 
 function animate() {
     v = (v + 1) % 101; // Increment v and wrap it around at 100
-    if (v === 0) v = 1; // Avoid the 0 case for modulo operations in your function
     slider.value = v;
     sliderValueLabel.textContent = "v: " + v;
     drawPixelsWithCustomFunction(functionInput.value);
-
-    // Update to use setTimeout for a slower animation
-    animationId = setTimeout(animate, animationSpeedInMs); // Delay in milliseconds
+    animationId = setTimeout(animate, animationSpeedInMs);
 }
 
 function toggleAnimation() {
     if (animationId) {
         // Pause the animation
-        clearTimeout(animationId);  // Use clearTimeout here
+        clearTimeout(animationId); // Use clearTimeout here
         animationId = null;
-        playPauseBtn.textContent = 'Play';
+        playPauseBtn.textContent = "Play";
     } else {
         // Start the animation
-        playPauseBtn.textContent = 'Pause';
+        playPauseBtn.textContent = "Pause";
         animate();
     }
 }
 
 function downloadImage() {
-    const dataUrl = canvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.download = 'pixel-logic-pattern.png';
+    const dataUrl = canvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.download = "pixel-logic-pattern.png";
     link.href = dataUrl;
     link.click();
 }
 
-function newRandomFunction(){
-    let randomIndex = Math.floor(Math.random() * (functionList.length-1));
+function newRandomFunction() {
+    let randomIndex = Math.floor(Math.random() * (functionList.length - 1));
     // make sure randomIndex is not the previous index
-    if (randomIndex == lastFunctionIndex){
-        randomIndex = functionList.length-1
+    if (randomIndex == lastFunctionIndex) {
+        randomIndex = functionList.length - 1;
     }
-    lastFunctionIndex = randomIndex
-    
+    lastFunctionIndex = randomIndex;
+
     const selectedFunction = functionList[randomIndex];
     functionInput.value = selectedFunction;
     drawPixelsWithCustomFunction(selectedFunction);
 }
 
-playPauseBtn.addEventListener('click', toggleAnimation);
-functionInput.addEventListener('input', () => {drawPixelsWithCustomFunction(functionInput.value);});
-slider.addEventListener('input', () => {
+playPauseBtn.addEventListener("click", toggleAnimation);
+functionInput.addEventListener("input", () => {
+    drawPixelsWithCustomFunction(functionInput.value);
+});
+slider.addEventListener("input", () => {
     v = parseInt(slider.value);
     sliderValueLabel.textContent = "v: " + v;
     drawPixelsWithCustomFunction(functionInput.value);
 });
-randomFuncBtn.addEventListener('click', newRandomFunction);
-downloadBtn.addEventListener('click', downloadImage);
+randomFuncBtn.addEventListener("click", newRandomFunction);
+downloadBtn.addEventListener("click", downloadImage);
 
-document.addEventListener('keydown', function(event) {
+document.addEventListener("keydown", function (event) {
     if (event.code === "Space") {
         event.preventDefault();
         toggleAnimation();
@@ -162,9 +161,7 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
-
 drawPixelsWithCustomFunction(functionInput.value);
-
 </script>
     
 </body>
